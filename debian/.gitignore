@@ -1,0 +1,8 @@
+/.debhelper
+/debhelper-build-stamp
+/files
+/r8126-dkms
+/*.debhelper.log
+/*.debhelper
+/*.substvars
+/tmp

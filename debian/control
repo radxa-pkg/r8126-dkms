@@ -1,0 +1,19 @@
+Source: r8126
+Maintainer: "Radxa Computer Co., Ltd" <dev@radxa.com>
+Section: misc
+Priority: optional
+Standards-Version: 4.6.0
+Build-Depends: debhelper (>=12~),
+               devscripts,
+               dh-sequence-dkms,
+               lintian,
+               dh-exec,
+
+Package: r8126-dkms
+Architecture: all
+Section: misc
+Priority: optional
+Depends: ${misc:Depends},
+Description: dkms sources for Realtek RTL8126 Wi-Fi driver
+ This package provides the dkms source code for Realtek
+ RTL8126 Wi-Fi driver.
