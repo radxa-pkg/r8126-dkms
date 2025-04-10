@@ -1,3 +1,4 @@
 [submodule "src"]
 	path = src
 	url = https://github.com/openwrt/rtl8126.git
+	branch = master
