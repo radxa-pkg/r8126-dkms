@@ -1,0 +1,30 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ReleaseRaptor <ReleaseRaptor@cixtech.com>
+Date: Wed, 19 Feb 2025 11:26:42 +0800
+Subject: [PATCH] net: ethernet: r8126: Disable WOL
+
+Link speed still stays at 10M mode after resume from D3 state
+when wol enabled. It seems the HwSuppD0SpeedUpVer feature does
+not work under wol mode. Anyway, disable WOL before it's ready.
+
+Signed-off-by: ZHANG Yuntian <yt@radxa.com>
+---
+ src/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/Makefile b/src/Makefile
+index 13ca2df26039..b0ab3847b169 100644
+--- a/src/Makefile
++++ b/src/Makefile
+@@ -48,7 +48,7 @@ ENABLE_PTP_MASTER_MODE = n
+ ENABLE_RSS_SUPPORT = n
+ ENABLE_LIB_SUPPORT = n
+ ENABLE_USE_FIRMWARE_FILE = n
+-DISABLE_WOL_SUPPORT = n
++DISABLE_WOL_SUPPORT = y
+ DISABLE_MULTI_MSIX_VECTOR = n
+ ENABLE_DOUBLE_VLAN = n
+ ENABLE_PAGE_REUSE = n
+-- 
+2.47.1
+

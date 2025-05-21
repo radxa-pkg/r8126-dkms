@@ -1,0 +1,61 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ReleaseRaptor <ReleaseRaptor@cixtech.com>
+Date: Sat, 8 Feb 2025 14:38:18 +0800
+Subject: [PATCH] net: realtek: r8126: Fix a SysError while entering S5
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+A SysError is caused by accessing PCIE BAR memory after EP entering
+into D3hot state. The flow is something like:
+poweroff – > rtl8126_shuntdown --> D3hot
+<context switch>
+rtl8126_dump_tally_counter  – > SysError
+
+[ 1698.940358] [pid:52182,cpu5,in irq]Call trace:
+[ 1698.940360] [pid:52182,cpu5,in irq] panic+0x1b8/0x3d8
+[ 1698.940369] [pid:52182,cpu5,in irq] nmi_panic+0xac/0xb0
+[ 1698.940374] [pid:52182,cpu5,in irq] arm64_serror_panic+0x90/0xa0
+[ 1698.940381] [pid:52182,cpu5,in irq] arm64_is_fatal_ras_serror+0x84/0x8c
+[ 1698.940386] [pid:52182,cpu5,in irq] do_serror+0x34/0x60
+[ 1698.940390] [pid:52182,cpu5,in irq] el1h_64_error_handler+0x30/0x4c
+[ 1698.940402] [pid:52182,cpu5,in irq] el1h_64_error+0x64/0x68
+[ 1698.940407] [pid:52182,cpu5,in irq] rtl8126_dump_tally_counter+0x78/0xb0 [r8126]
+[ 1698.940422] [pid:52182,cpu5,in irq] rtl8126_get_stats64+0x58/0x90 [r8126]
+[ 1698.940437] [pid:52182,cpu5,in irq] dev_get_stats+0x4c/0x150
+[ 1698.940454] [pid:52182,cpu5,in irq] rtnl_fill_stats+0x44/0x140
+[ 1698.940470] [pid:52182,cpu5,in irq] rtnl_fill_ifinfo+0x658/0x1160
+[ 1698.940483] [pid:52182,cpu5,in irq] rtmsg_ifinfo_build_skb+0xac/0x120
+[ 1698.940491] [pid:52182,cpu5,in irq] rtmsg_ifinfo+0x4c/0xa0
+[ 1698.940499] [pid:52182,cpu5,in irq] netdev_state_change+0x7c/0x84
+[ 1698.940505] [pid:52182,cpu5,in irq] linkwatch_do_dev+0xac/0xfc
+[ 1698.940509] [pid:52182,cpu5,in irq] __linkwatch_run_queue+0xe8/0x230
+[ 1698.940512] [pid:52182,cpu5,in irq] linkwatch_event+0x30/0x40
+[ 1698.940516] [pid:52182,cpu5,in irq] process_one_work+0x1e0/0x350
+[ 1698.940528] [pid:52182,cpu5,in irq] worker_thread+0x6c/0x430
+[ 1698.940533] [pid:52182,cpu5,in irq] kthread+0x108/0x10c
+[ 1698.940541] [pid:52182,cpu5,in irq] ret_from_fork+0x10/0x20
+
+Add some sleep time to wait for linkwatch events to complete before entering into D3hot state.
+
+Signed-off-by: ZHANG Yuntian <yt@radxa.com>
+---
+ src/r8126_n.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/r8126_n.c b/src/r8126_n.c
+index 1c920dec003a..15c4949ba504 100644
+--- a/src/r8126_n.c
++++ b/src/r8126_n.c
+@@ -17930,7 +17930,7 @@ static void rtl8126_shutdown(struct pci_dev *pdev)
+         rtl8126_disable_msi(pdev, tp);
+ 
+         rtnl_unlock();
+-
++        msleep(300);
+         if (system_state == SYSTEM_POWER_OFF) {
+                 pci_clear_master(tp->pci_dev);
+                 pci_wake_from_d3(pdev, tp->wol_enabled);
+-- 
+2.47.1
+

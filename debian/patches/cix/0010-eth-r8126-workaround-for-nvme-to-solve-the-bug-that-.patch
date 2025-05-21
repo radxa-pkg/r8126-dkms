@@ -1,0 +1,34 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ReleaseRaptor <ReleaseRaptor@cixtech.com>
+Date: Thu, 13 Feb 2025 18:13:38 +0800
+Subject: [PATCH] eth: r8126: workaround for nvme to solve the bug that read
+ cfg hang when poweroff
+
+-workaround for nvme to solve the bug that read cfg hang when poweroff.
+
+Signed-off-by: ZHANG Yuntian <yt@radxa.com>
+---
+ src/r8126_n.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/r8126_n.c b/src/r8126_n.c
+index 15c4949ba504..f53e825afec1 100644
+--- a/src/r8126_n.c
++++ b/src/r8126_n.c
+@@ -17931,11 +17931,13 @@ static void rtl8126_shutdown(struct pci_dev *pdev)
+ 
+         rtnl_unlock();
+         msleep(300);
++#if 0
+         if (system_state == SYSTEM_POWER_OFF) {
+                 pci_clear_master(tp->pci_dev);
+                 pci_wake_from_d3(pdev, tp->wol_enabled);
+                 pci_set_power_state(pdev, PCI_D3hot);
+         }
++#endif
+ }
+ #endif
+ 
+-- 
+2.47.1
+

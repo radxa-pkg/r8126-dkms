@@ -1,0 +1,55 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ReleaseRaptor <ReleaseRaptor@cixtech.com>
+Date: Wed, 19 Feb 2025 12:48:33 +0800
+Subject: [PATCH] net: macb: Fix a sysError while enter STD
+
+Uplayer access pcie memory space of r8126 after system enter S4 state,
+which leads to a system hang. To avoid it, block the access when
+carrier is off.
+
+Call trace:
+ panic+0x1b8/0x3d8
+ nmi_panic+0xac/0xb0
+ arm64_serror_panic+0x90/0xa0
+ arm64_is_fatal_ras_serror+0x84/0x8c
+ do_serror+0x34/0x60
+ el1h_64_error_handler+0x30/0x4c
+ el1h_64_error+0x64/0x68
+ rtl8125_dump_tally_counter+0x78/0xb0 [r8125]
+ rtl8125_get_stats64+0x58/0x90 [r8125]
+ dev_get_stats+0x4c/0x150
+ rtnl_fill_stats+0x44/0x140
+ rtnl_fill_ifinfo+0x658/0x1160
+ rtmsg_ifinfo_build_skb+0xac/0x120
+ rtmsg_ifinfo+0x4c/0xa0
+ netdev_state_change+0x7c/0x84
+ linkwatch_do_dev+0xac/0xfc
+ __linkwatch_run_queue+0xe8/0x230
+ linkwatch_event+0x30/0x40
+ process_one_work+0x1e0/0x350
+ worker_thread+0x6c/0x430
+ kthread+0x108/0x10c
+ ret_from_fork+0x10/0x20
+
+Signed-off-by: ZHANG Yuntian <yt@radxa.com>
+---
+ src/r8126_n.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/r8126_n.c b/src/r8126_n.c
+index 7f3e7be438f9..0c6567f65793 100644
+--- a/src/r8126_n.c
++++ b/src/r8126_n.c
+@@ -14179,6 +14179,9 @@ rtl8126_get_stats64(struct net_device *dev, struct rtnl_link_stats64 *stats)
+         struct rtl8126_counters *counters = tp->tally_vaddr;
+         dma_addr_t paddr = tp->tally_paddr;
+ 
++        if (!netif_running(dev))
++                return;
++
+         if (!counters)
+                 return;
+ 
+-- 
+2.47.1
+

@@ -1,0 +1,41 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ReleaseRaptor <ReleaseRaptor@cixtech.com>
+Date: Wed, 19 Feb 2025 11:41:20 +0800
+Subject: [PATCH] net: ethernet: realtek: Wait pending napi tasks to complete
+
+Some async tasks still access resource of NIC after suspend, which cause
+system error and panic. To avoid it, wait for any pending NAPI task to
+complete before r8126 suspend.
+
+Signed-off-by: ZHANG Yuntian <yt@radxa.com>
+---
+ src/r8126_n.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/src/r8126_n.c b/src/r8126_n.c
+index f53e825afec1..7f3e7be438f9 100644
+--- a/src/r8126_n.c
++++ b/src/r8126_n.c
+@@ -17979,6 +17979,8 @@ rtl8126_suspend(struct pci_dev *pdev, pm_message_t state)
+ 
+         netif_carrier_off(dev);
+ 
++        _rtl8126_wait_for_quiescence(dev);
++
+         netif_tx_disable(dev);
+ 
+         netif_device_detach(dev);
+@@ -18084,6 +18086,10 @@ rtl8126_resume(struct device *device)
+         if (!netif_running(dev))
+                 goto out_unlock;
+ 
++#ifdef CONFIG_R8126_NAPI
++        rtl8126_enable_napi(tp);
++#endif//CONFIG_R8126_NAPI
++
+         pci_set_master(pdev);
+ 
+         rtl8126_exit_oob(dev);
+-- 
+2.47.1
+

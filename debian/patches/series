@@ -1,0 +1,10 @@
+# CIX r8126 patchset
+# https://github.com/radxa/kernel/commits/874c4/bbdf2/cix_beta2_radxa_dev/drivers/net/ethernet/realtek/r8126
+
+cix/0001-net-realtek-r8126-Fix-a-SysError-while-entering-S5.patch
+# This was not used in the CIX 2025.04 release
+# cix/0010-eth-r8126-workaround-for-nvme-to-solve-the-bug-that-.patch
+cix/0012-net-ethernet-r8126-Disable-WOL.patch
+cix/0013-net-ethernet-realtek-Wait-pending-napi-tasks-to-comp.patch
+cix/0014-net-macb-Fix-a-sysError-while-enter-STD.patch
+cix/0015-net-realtek-r8126-Fix-a-invalid-access.patch
