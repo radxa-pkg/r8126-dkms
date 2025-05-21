@@ -1,3 +1,10 @@
+r8126 (10.015.00-2) noble; urgency=medium
+
+  [ ZHANG Yuntian ]
+  * feat: add CIX patchset
+
+ -- "Radxa Computer Co., Ltd" <dev@radxa.com>  Wed, 21 May 2025 11:30:27 +0000
+
 r8126 (10.015.00-1) stable; urgency=medium
 
   [ ZHANG Yuntian ]
