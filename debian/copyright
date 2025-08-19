@@ -1,7 +1,7 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: r8126
-Source: https://github.com/radxa-pkg/r8126
- 
+Upstream-Name: r8126-dkms
+Source: https://github.com/radxa-pkg/r8126-dkms
+
 Files: *
 Copyright: © 2025 Radxa Computer Co., Ltd
 License: GPL-3+
